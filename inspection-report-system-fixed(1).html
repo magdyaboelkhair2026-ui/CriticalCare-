@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>نظام تقارير مرور الرعاية الحرجة والعاجلة — إصدار Offline + Mobile</title>
+<style>
+/* Offline: no external fonts or CDN dependencies. */
+:root{--navy:#0F3B3A;--nd:#0A2827;--paper:#F6F4EC;--line:#E2DDCF;--ink:#20302F;--mut:#6E7A76;--gold:#B9863E;--gl:#E8D4AE;--red:#C9382C;--rb:#FBE7E5;--or:#D6842A;--ob:#FCEEDD;--gr:#3E8C5C;--gb:#E6F2E9;--theme-name:'الأساسي'}
+/* إضافات واجهة الألوان */
+.theme-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.theme-card{border:2px solid var(--line);border-radius:10px;padding:10px;background:#fff;cursor:pointer;transition:.18s}.theme-card:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.08)}.theme-card.on{border-color:var(--gold);box-shadow:0 0 0 2px var(--gl)}.theme-name{font-weight:800;color:var(--navy);font-size:13px;margin-bottom:8px}.swatches{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.sw{height:30px;border-radius:6px;border:1px solid rgba(0,0,0,.08)}
+.att-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.dz.drag{border-color:var(--gold);background:var(--gl)}
+@media(max-width:800px){.theme-grid{grid-template-columns:1fr}.att-toolbar .btn{flex:1;justify-content:center}}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:Tahoma,Arial,sans-serif;background:var(--paper);color:var(--ink);min-height:100vh}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit}
+#shell{display:flex;min-height:100vh}
+#side{width:230px;flex:none;background:var(--navy);color:#fff;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+.brand{padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.12)}
+.brand b{font-size:15px;font-weight:900;display:block}
+.brand small{color:var(--gl);font-size:11px}
+#nav{list-style:none;margin:0;padding:10px;flex:1}
+.nb{display:flex;align-items:center;gap:9px;width:100%;background:none;border:0;color:#DCE7E5;padding:10px;border-radius:8px;font-size:14px;text-align:right;margin-bottom:3px}
+.nb:hover{background:rgba(255,255,255,.08)}
+.nb.on{background:var(--gold);color:var(--nd);font-weight:700}
+.cr{padding:10px;font-size:11px;color:rgba(255,255,255,.55);text-align:center;border-top:1px solid rgba(255,255,255,.12)}
+#main{flex:1;min-width:0;padding:24px 28px 60px}
+.ph{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.ph h1{font-size:19px;margin:0;color:var(--navy);font-weight:900}
+.ph .d{font-size:12.5px;color:var(--mut)}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 2px 10px rgba(15,59,58,.08);padding:16px 18px;margin-bottom:14px}
+.card h2{font-size:15px;margin:0 0 10px;color:var(--navy)}
+.bc{background:var(--paper);color:var(--mut);font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+label{display:block;font-size:12px;color:var(--mut);margin-bottom:4px}
+input[type=text],input[type=date],input[type=time],input[type=number],select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:#FCFBF8;font-size:14px;color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--gl);border-color:var(--gold)}
+textarea{min-height:60px;resize:vertical}
+.f{margin-bottom:11px}
+.btn{border:0;border-radius:8px;padding:9px 15px;font-size:13.5px;font-weight:700;display:inline-flex;align-items:center;gap:6px}
+.b1{background:var(--navy);color:#fff}.b2{background:var(--gold);color:var(--nd)}
+.b3{background:#fff;border:1px solid var(--line);color:var(--ink)}.b4{background:var(--rb);color:var(--red)}
+.sm{padding:6px 10px;font-size:12px}
+.ck{display:flex;align-items:center;gap:9px;font-size:14px;background:#FCFBF8;border:1px solid var(--line);border-radius:7px;padding:9px 11px;margin-bottom:7px;color:var(--ink)}
+.ck input{width:auto;accent-color:var(--gr)}
+.sb{border:1px solid var(--line);border-radius:10px;margin-bottom:14px;overflow:hidden;background:#fff}
+.sh{background:var(--paper);padding:11px 15px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:800;color:var(--navy)}
+.sy{padding:15px}
+.tw{overflow-x:auto}
+table.t{width:100%;border-collapse:collapse;font-size:13px}
+.t th{background:var(--paper);color:var(--navy);padding:8px;border:1px solid var(--line);text-align:right;white-space:nowrap}
+.t td{padding:4px;border:1px solid var(--line)}
+.t td input,.t td select{border-color:transparent;background:transparent;padding:6px;min-width:110px}
+.t td input:focus,.t td select:focus{background:#fff}
+.sc{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px}
+.sc .n{font-size:25px;font-weight:900;color:var(--navy)}.sc .l{font-size:12px;color:var(--mut)}
+.pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700}
+.p-r{background:var(--rb);color:var(--red)}.p-o{background:var(--ob);color:var(--or)}.p-g{background:var(--gb);color:var(--gr)}
+.trend{display:flex;align-items:flex-end;gap:14px;height:170px;padding:8px 4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tb{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:56px}
+.tb i{display:block;width:32px;border-radius:6px 6px 0 0}.tb b{font-size:12px}.tb span{font-size:10px;color:var(--mut);text-align:center}
+.hint{font-size:12px;color:var(--mut);margin-top:5px}
+.empty{text-align:center;padding:30px;color:var(--mut)}
+.lk{background:none;border:0;color:var(--navy);font-weight:700;text-decoration:underline;font-size:13.5px;padding:0}
+.bar{height:10px;background:var(--paper);border-radius:20px;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--or),var(--gr))}
+.ag{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.ai{border:1px solid var(--line);border-radius:8px;overflow:hidden}.ai img{width:100%;height:100px;object-fit:cover;display:block}
+.ai div{padding:5px 7px;font-size:11px;display:flex;justify-content:space-between;gap:5px}
+.dz{border:2px dashed var(--line);border-radius:10px;padding:24px;text-align:center;color:var(--mut);background:#FCFBF8}
+.hl{display:flex;gap:6px;margin-bottom:6px}.hl span{flex:1;background:#FCFBF8;border:1px solid var(--line);border-radius:7px;padding:7px 10px;font-size:13.5px}
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 20px;border-radius:30px;font-size:13.5px;z-index:9999;opacity:0;transition:opacity .25s;pointer-events:none}
+#toast.on{opacity:1}
+/* preview scales to fit screen so mobile shows the same layout as desktop */
+.pvw{overflow:hidden;border:1px solid var(--line);border-radius:10px;background:#fff}
+.pvw .rp{width:794px;transform-origin:top right}
+@media(max-width:800px){
+.g2,.g3,.g4{grid-template-columns:1fr}
+.g4{grid-template-columns:1fr 1fr}
+#shell{display:block}
+#side{position:fixed;bottom:0;top:auto;width:100%;height:auto;z-index:1000;flex-direction:row;border-top:2px solid var(--gold);overflow:visible}
+.brand,.cr{display:none}
+#nav{display:flex;overflow-x:auto;padding:6px 4px;margin:0;gap:4px}
+.nb{flex-direction:column;width:68px;flex:none;font-size:10.5px;padding:6px 2px;text-align:center;gap:2px;margin:0}
+.nb .ic{font-size:19px}
+#main{padding:14px 12px 100px}
+}
+
+/* ===== MOBILE REPORT PREVIEW ===== */
+@media(max-width:800px){
+  .pvw{overflow:visible;background:#eef1f3;padding:10px;border-radius:10px}
+  .pvw .rp{width:100%;min-width:0;transform:none !important;transform-origin:top right;font-size:13px;line-height:1.75}
+  .pvw .rp .bx{padding:0 10px 14px}
+  .pvw .rp .hd td{padding:6px 10px;font-size:12px}
+  .pvw .rp .hd .t{font-size:14px;padding:8px 10px 12px}
+  .pvw .rp h3{font-size:13.5px;margin:12px 0 6px;border-right-width:3px;padding-right:6px}
+  .pvw .rp p{margin:7px 0}
+  .pvw .rp table{width:100%;table-layout:fixed;font-size:11.5px;margin:6px 0 10px}
+  .pvw .rp th,.pvw .rp td{padding:6px 4px;word-break:break-word;overflow-wrap:anywhere;line-height:1.6}
+  .pvw .rp .m td{font-size:12px}
+  .pvw .rp .m td b{font-size:10px}
+  .pvw .rp img{height:180px;object-fit:contain;background:#f7f7f7}
+  .pvw .rp .bar{height:8px}
+  .pvw .rp .bar i{height:8px}
+  .pvw .rp .ft{font-size:10px;margin-top:12px}
+}
+
+</style>
+</head>
+<body>
+<div id="shell">
+<nav id="side"><div class="brand"><b>إدارة الرعاية الحرجة والعاجلة</b><small>مديرية الشئون الصحية بالدقهلية</small></div><ul id="nav" style="list-style:none"></ul><div class="cr">تصميم وتطوير: مجدى محمد سعد</div></nav>
+<main id="main"></main>
+</div>
+<div id="toast"></div>
+
+<script>
+/* ================= STORAGE (localStorage; uses window.storage inside Claude) ================= */
+const LS='inspApp:';
+async function sGet(k){try{if(window.storage){const r=await window.storage.get(k,false);return r?JSON.parse(r.value):null}const v=localStorage.getItem(LS+k);return v?JSON.parse(v):null}catch(e){return null}}
+async function sSet(k,v){try{if(window.storage)await window.storage.set(k,JSON.stringify(v),false);else localStorage.setItem(LS+k,JSON.stringify(v));return true}catch(e){console.error(e);return false}}
+async function sDel(k){try{if(window.storage)await window.storage.delete(k,false);else localStorage.removeItem(LS+k);return true}catch(e){return false}}
+
+/* ================= DATA ================= */
+const DEFAULT_HOSPITALS=['مستشفى السنبلاوين العام','مستشفى دكرنس العام','مستشفى المنزلة العام','مستشفى بلقاس العام','مستشفى طلخا المركزي','مستشفى ميت غمر المركزي','مستشفى أجا المركزي','مستشفى دماص المركزي','مستشفى أتميدة المركزي','مستشفى المقاطعة المركزي','مستشفى شبرا سندي المركزي','مستشفى شبراهور المركزي','مستشفى تمي الأمديد المركزي','مستشفى الكردي المركزي','مستشفى منية النصر المركزي','مستشفى المطرية المركزي','مستشفى الجمالية المركزي','مستشفى ميت سلسيل المركزي','مستشفى نبروه المركزي','مستشفى جمصة المركزي','مستشفى شربين المركزي','مستشفى صدر المنصورة','مستشفى حميات المنصورة','مستشفى رمد المنصورة','مستشفى الجلدية والجذام بالمنصورة','مستشفى طب الأسنان','مستشفى الكلى والمسالك بميت غمر','مستشفى حميات دكرنس','مستشفى صدر دكرنس'];
+const DEF_SET={line1:'مديرية الشئون الصحية بالدقهلية',line2:'الإدارة العامة للطب العلاجي',line3:'إدارة الرعاية الحرجة والعاجلة',title:'نموذج المرور الميداني والتقرير التنفيذي لأقسام الرعاية الحرجة والعاجلة',inspectorName:'',theme:'classic'};
+const ER=['الغرفة مفعلة','رعايات مصر تعمل','Username & Password','الإنترنت والكمبيوتر','Crash Cart','الشيتات والسجلات'];
+const ICU=['القوى البشرية','الأجهزة تعمل','الأدوية الحرجة','المستلزمات','السجلات'];
+const OR=['غرفة العمليات تعمل','جهاز التخدير','جهاز الشفط','الأدوية والمستلزمات','السجلات'];
+const SEC={er:['🚑 الطوارئ',ER],icu:['❤️ العناية المركزة',ICU],or:['🏥 العمليات',OR]};
+const SERA=[['rabies','مصل الكلب (مضاد السعار)'],['tatSurgical','مصل التيتانوس الجراحي (TAT)'],['toxoid','توكسيد التيتانوس (التطعيم)'],['snake','مصل الثعبان'],['scorpion','مصل العقرب']];
+const DECS=['ممتاز','جيد جداً','جيد','يحتاج متابعة','يحتاج تدخل عاجل'];
+const SEVL={critical:'حرجة',medium:'متوسطة',minor:'بسيطة'};
+const NAV=[['dashboard','📊','Dashboard'],['form','🏥','تقرير جديد'],['preview','📋','تنسيق التقرير'],['pdf','📄','تصدير PDF'],['ppt','📊','PowerPoint'],['s-er','🚑','قسم الطوارئ'],['s-icu','❤️','قسم العناية'],['s-or','🔪','قسم العمليات'],['att','📎','المرفقات'],['settings','⚙️','الإعدادات']];
+
+/* ================= COLOR PALETTES ================= */
+const THEMES={
+  classic:{name:'الأساسي الحالي',light:'#F6F4EC',main:'#B9863E',dark:'#0F3B3A',deep:'#0A2827',line:'#E2DDCF',ink:'#20302F',mut:'#6E7A76'},
+  teal:{name:'Teal الطبي',light:'#E6F4F3',main:'#0F766E',dark:'#0B4F4A',deep:'#073A37',line:'#CFE5E2',ink:'#20302F',mut:'#607572'},
+  blue:{name:'الأزرق الطبي',light:'#DCE8F5',main:'#2C5F8A',dark:'#13315C',deep:'#0D2445',line:'#C9D8E8',ink:'#203047',mut:'#647486'},
+  gold:{name:'الذهبي الرسمي',light:'#F3EFE3',main:'#B7860B',dark:'#1B2A4A',deep:'#101B31',line:'#E2D9C3',ink:'#29302F',mut:'#77736A'},
+  slate:{name:'Slate المؤسسي',light:'#EBEDEF',main:'#5D6D7E',dark:'#34495E',deep:'#263746',line:'#D8DDE1',ink:'#29333B',mut:'#69737B'}
+};
+function applyTheme(name){const t=THEMES[name]||THEMES.classic;const r=document.documentElement;r.style.setProperty('--navy',t.dark);r.style.setProperty('--nd',t.deep);r.style.setProperty('--paper',t.light);r.style.setProperty('--line',t.line);r.style.setProperty('--ink',t.ink);r.style.setProperty('--mut',t.mut);r.style.setProperty('--gold',t.main);r.style.setProperty('--gl',t.light);r.style.setProperty('--theme-name',`'${t.name}'`);}
+
+
+let S={view:'dashboard',index:[],cur:null,set:null,hospitals:[],cmp:null};
+
+const sec=(items)=>({included:true,checks:items.map(()=>false),notes:''});
+function newReport(){
+  const icu=sec(ICU);icu.occupancy={total:'',occupied:''};
+  const or=sec(OR);or.operations=[];or.postponed=[];
+  return{id:'r_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),hospital:'',visitDate:'',visitTime:'',visitType:'أول',inspectorName:S.set.inspectorName||'',attendees:'',sections:{er:sec(ER),icu,or},observations:[],faults:[],shortages:{medicines:'',supplies:''},receptionSera:{rabies:'',tatSurgical:'',toxoid:'',snake:'',scorpion:''},scoreOverride:null,decision:'',followUpDate:'',signatureName:'',attachments:[],createdAt:Date.now()};
+}
+function norm(r){
+  const d=newReport();
+  r.sections=r.sections||d.sections;
+  ['er','icu','or'].forEach(k=>{if(!r.sections[k])r.sections[k]=d.sections[k]});
+  if(!r.sections.icu.occupancy)r.sections.icu.occupancy={total:'',occupied:''};
+  if(!r.sections.or.operations)r.sections.or.operations=[];
+  if(!r.sections.or.postponed)r.sections.or.postponed=[];
+  r.receptionSera=Object.assign({rabies:'',tatSurgical:'',toxoid:'',snake:'',scorpion:''},r.receptionSera||{});
+  r.shortages=Object.assign({medicines:'',supplies:''},r.shortages||{});
+  r.observations=r.observations||[];r.faults=r.faults||[];r.attachments=r.attachments||[];
+  return r;
+}
+const cnt=r=>{const c={critical:0,medium:0,minor:0};r.observations.forEach(o=>{if(c[o.severity]!==undefined)c[o.severity]++});return c};
+const sugScore=r=>{const c=cnt(r);return Math.max(0,Math.min(100,100-c.critical*15-c.medium*7-c.minor*3))};
+const finScore=r=>(r.scoreOverride!==null&&r.scoreOverride!==undefined&&r.scoreOverride!=='')?Number(r.scoreOverride):sugScore(r);
+const sugDec=s=>s>=90?'ممتاز':s>=75?'جيد جداً':s>=60?'جيد':s>=40?'يحتاج متابعة':'يحتاج تدخل عاجل';
+const decCls=d=>(d==='ممتاز'||d==='جيد جداً')?'g':d==='جيد'?'o':'r';
+const E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const br=s=>E(s).replace(/\n/g,'<br>');
+let tt=null;
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2400)}
+
+/* path helpers: data-p="sections.er.checks.0" */
+function setP(o,p,v){const a=p.split('.');const l=a.pop();let x=o;a.forEach(k=>x=x[k]);x[l]=v}
+
+/* ================= INIT / NAV ================= */
+async function init(){
+  S.set=Object.assign({},DEF_SET,await sGet('app-settings')||{});
+  applyTheme(S.set.theme||'classic');
+  S.index=await sGet('reports-index')||[];
+  S.hospitals=await sGet('hospitals')||DEFAULT_HOSPITALS.slice();
+  drawNav();go('dashboard');
+}
+function drawNav(){
+  document.getElementById('nav').innerHTML=NAV.map(n=>`<li><button class="nb ${S.view===n[0]?'on':''}" data-go="${n[0]}"><span class="ic">${n[1]}</span><span>${n[2]}</span></button></li>`).join('');
+}
+async function go(id){
+  if(id.startsWith('s-')){
+    if(!S.cur)S.cur=newReport();
+    const k=id.slice(2);S.cur.sections[k].included=true;S.view='form';drawNav();render();
+    setTimeout(()=>{const e=document.getElementById('blk-'+k);if(e)e.scrollIntoView({behavior:'smooth'})},80);return;
+  }
+  if(id==='pdf'){S.view='preview';drawNav();render();setTimeout(printPDF,500);return}
+  if(id==='ppt'){if(!S.cur)S.cur=newReport();S.view='preview';drawNav();render();setTimeout(exportPowerPoint,500);return}
+  S.view=id;drawNav();render();window.scrollTo(0,0);
+}
+function render(){
+  const m=document.getElementById('main');
+  ({dashboard:vDash,form:vForm,preview:vPrev,att:vAtt,settings:vSet})[S.view](m);
+}
+document.getElementById('nav').addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)go(b.dataset.go)});
+
+/* ================= DASHBOARD ================= */
+function vDash(m){
+  const idx=S.index.slice().sort((a,b)=>(b.visitDate||'').localeCompare(a.visitDate||''));
+  const n=idx.length,avg=n?Math.round(idx.reduce((s,r)=>s+(r.score||0),0)/n):0;
+  const hs=[...new Set(idx.map(r=>r.hospital).filter(Boolean))];
+  m.innerHTML=`
+  <div class="ph"><div><h1>📊 لوحة المتابعة</h1><div class="d">جميع زيارات المرور المسجّلة</div></div><button class="btn b1" data-a="new">+ تقرير جديد</button></div>
+  <div class="g4">
+   <div class="sc"><div class="n">${n}</div><div class="l">إجمالي الزيارات</div></div>
+   <div class="sc"><div class="n">${avg}</div><div class="l">متوسط الالتزام</div></div>
+   <div class="sc"><div class="n" style="color:var(--red)">${idx.filter(r=>r.decision==='يحتاج تدخل عاجل').length}</div><div class="l">يحتاج تدخل عاجل</div></div>
+   <div class="sc"><div class="n" style="color:var(--or)">${idx.filter(r=>r.decision==='يحتاج متابعة').length}</div><div class="l">يحتاج متابعة</div></div>
+  </div>
+  <div class="card"><h2>🏥 مقارنة زيارات مستشفى</h2>
+   <div class="f" style="max-width:340px"><select id="cmp"><option value="">— اختر المستشفى —</option>${hs.map(h=>`<option ${S.cmp===h?'selected':''}>${E(h)}</option>`).join('')}</select></div>
+   <div id="cmpa"></div></div>
+  <div class="card"><h2>سجل الزيارات <span class="bc">${n}</span></h2>
+  ${n?`<div class="tw"><table class="t"><thead><tr><th>المستشفى</th><th>التاريخ</th><th>النوع</th><th>الدرجة</th><th>الحالة</th><th>ملاحظات</th><th></th></tr></thead><tbody>
+  ${idx.map(r=>`<tr><td><button class="lk" data-a="open" data-id="${r.id}">${E(r.hospital||'—')}</button></td><td>${r.visitDate||'—'}</td><td>${r.visitType||''}</td><td><b>${r.score}</b>/100</td><td><span class="pill p-${decCls(r.decision)}">${r.decision||'—'}</span></td><td style="white-space:nowrap">${r.critical||0} 🔴 ${r.medium||0} 🟠 ${r.minor||0} 🟢</td><td><button class="btn b3 sm" data-a="delrep" data-id="${r.id}">حذف</button></td></tr>`).join('')}
+  </tbody></table></div>`:`<div class="empty">🩺<br>لا توجد تقارير بعد</div>`}</div>`;
+  const sel=m.querySelector('#cmp');
+  const draw=()=>{
+    const a=m.querySelector('#cmpa');if(!S.cmp){a.innerHTML='';return}
+    const v=idx.filter(r=>r.hospital===S.cmp).reverse();
+    a.innerHTML=`<div class="trend">${v.map(x=>`<div class="tb"><b>${x.score}</b><i style="height:${Math.max(6,x.score*1.1)}px;background:var(--${decCls(x.decision)==='g'?'gr':decCls(x.decision)==='o'?'or':'red'})"></i><span>${x.visitDate||''}<br>${x.visitType||''}</span></div>`).join('')}</div>
+    <div class="hint">📌 لو الدرجة قلّت بين زيارتين رغم "متابعة" سابقة، التوصيات مش بتتنفذ — ده يستاهل تصعيد مش تكرار الملاحظة.</div>`;
+  };
+  sel.onchange=()=>{S.cmp=sel.value||null;draw()};draw();
+}
+
+/* ================= FORM ================= */
+function rowsTbl(path,list,cols,empty){
+  if(!list.length)return`<tr><td colspan="${cols.length+1}" style="text-align:center;color:var(--mut)">${empty}</td></tr>`;
+  return list.map((o,i)=>`<tr>${cols.map(c=>c.sel?`<td><select data-p="${path}.${i}.${c.k}" data-re="1">${Object.entries(SEVL).map(([k,l])=>`<option value="${k}" ${o[c.k]===k?'selected':''}>${l}</option>`).join('')}</select></td>`:`<td><input type="text" data-p="${path}.${i}.${c.k}" value="${E(o[c.k])}" placeholder="${c.h||''}"></td>`).join('')}<td><button class="btn b4 sm" data-a="delrow" data-path="${path}" data-i="${i}">✕</button></td></tr>`).join('');
+}
+const OBS_COLS=[{k:'section',h:'القسم'},{k:'note',h:'الملاحظة'},{k:'severity',sel:1},{k:'action',h:'الإجراء المطلوب'},{k:'responsible',h:'المسئول'},{k:'deadline',h:'المهلة'}];
+const FLT_COLS=[{k:'device'},{k:'dept'},{k:'desc'},{k:'action'}];
+const OP_COLS=[{k:'type'},{k:'doctor'},{k:'status',h:'تمت / جارية'}];
+const PP_COLS=[{k:'type'},{k:'reason'}];
+
+function secHTML(k){
+  const r=S.cur,[label,items]=SEC[k],s=r.sections[k];
+  if(!s.included)return`<div class="sh"><span>${label} <small style="color:var(--mut);font-weight:400">(غير مُدرَج)</small></span></div>`;
+  let x='';
+  if(k==='icu'){
+    const t=Number(s.occupancy.total)||0,o=Number(s.occupancy.occupied)||0;
+    x=`<div class="g3"><div class="f"><label>إجمالي أسرة العناية</label><input type="number" min="0" data-p="sections.icu.occupancy.total" value="${E(s.occupancy.total)}"></div><div class="f"><label>الأسرة المشغولة</label><input type="number" min="0" data-p="sections.icu.occupancy.occupied" value="${E(s.occupancy.occupied)}"></div><div class="f"><label>نسبة الإشغال</label><input type="text" id="occp" disabled value="${t>0?Math.round(o/t*100):0}%"></div></div>`;
+  }
+  if(k==='or'){
+    x=`<label>العمليات المجراة</label><div class="tw"><table class="t"><thead><tr><th>نوع العملية</th><th>الجراح</th><th>الحالة</th><th></th></tr></thead><tbody>${rowsTbl('sections.or.operations',s.operations,OP_COLS,'لا توجد عمليات')}</tbody></table></div>
+    <button class="btn b3 sm" style="margin:8px 0 14px" data-a="addrow" data-path="sections.or.operations">+ إضافة عملية</button>
+    <label>العمليات المؤجلة</label><div class="tw"><table class="t"><thead><tr><th>نوع العملية</th><th>سبب التأجيل</th><th></th></tr></thead><tbody>${rowsTbl('sections.or.postponed',s.postponed,PP_COLS,'لا توجد عمليات مؤجلة')}</tbody></table></div>
+    <button class="btn b3 sm" style="margin-top:8px" data-a="addrow" data-path="sections.or.postponed">+ إضافة عملية مؤجلة</button>`;
+  }
+  return`<div class="sh"><span>${label}</span><button class="btn b3 sm" data-a="rmsec" data-k="${k}">✕ لا ينطبق</button></div><div class="sy">
+  ${items.map((it,i)=>`<label class="ck"><input type="checkbox" data-p="sections.${k}.checks.${i}" ${s.checks[i]?'checked':''}> ${it}</label>`).join('')}
+  ${x}<div class="f" style="margin-top:10px"><label>ملاحظات إضافية</label><textarea data-p="sections.${k}.notes">${E(s.notes)}</textarea></div></div>`;
+}
+const ADD={observations:{section:'',note:'',severity:'medium',action:'',responsible:'',deadline:''},faults:{device:'',dept:'',desc:'',action:''},'sections.or.operations':{type:'',doctor:'',status:''},'sections.or.postponed':{type:'',reason:''}};
+function getP(o,p){return p.split('.').reduce((x,k)=>x[k],o)}
+
+function vForm(m){
+  if(!S.cur)S.cur=newReport();
+  const r=S.cur,c=cnt(r),ss=sugScore(r),fs=finScore(r),sd=sugDec(fs);
+  const hosp=S.hospitals.includes(r.hospital)||!r.hospital?S.hospitals:[r.hospital,...S.hospitals];
+  m.innerHTML=`
+  <div class="ph"><div><h1>🏥 تقرير مرور</h1><div class="d">نموذج المرور الميداني</div></div><div style="display:flex;gap:8px"><button class="btn b3" data-a="blank">تقرير فارغ</button><button class="btn b1" data-a="save">💾 حفظ</button></div></div>
+  <div class="card"><h2>أولاً: بيانات المرور</h2>
+   <div class="f"><label>المستشفى</label><div style="display:flex;gap:8px"><select data-p="hospital" data-re="1"><option value="">— اختر المستشفى —</option>${hosp.map(h=>`<option ${r.hospital===h?'selected':''}>${E(h)}</option>`).join('')}<option value="__new">➕ إضافة مستشفى جديد…</option></select></div></div>
+   <div class="g3"><div class="f"><label>تاريخ المرور</label><input type="date" data-p="visitDate" value="${r.visitDate}"></div><div class="f"><label>وقت المرور</label><input type="time" data-p="visitTime" value="${r.visitTime}"></div>
+   <div class="f"><label>نوع المرور</label><select data-p="visitType" data-re="1">${['أول','متابعة','مفاجئ'].map(t=>`<option ${r.visitType===t?'selected':''}>${t}</option>`).join('')}</select></div></div>
+   <div class="g2"><div class="f"><label>القائم بالمرور</label><input type="text" data-p="inspectorName" value="${E(r.inspectorName)}"></div><div class="f"><label>الحضور من المستشفى</label><input type="text" data-p="attendees" value="${E(r.attendees)}"></div></div>
+   ${fuBox()}</div>
+  <h2 style="color:var(--navy);font-size:15px;margin:4px 2px 8px">ثانياً: التقييم السريع بالأقسام</h2>
+  ${['er','icu','or'].map(k=>`<div class="sb" id="blk-${k}">${secHTML(k)}</div>`).join('')}
+  <div class="card"><h2>🧪 أرصدة أمصال الاستقبال</h2><div class="g3">${SERA.map(([k,l])=>`<div class="f"><label>${l}</label><input type="number" min="0" data-p="receptionSera.${k}" value="${E(r.receptionSera[k])}" placeholder="الرصيد"></div>`).join('')}</div><div class="hint">الفارغ أو صفر = غير متوفر، ويظهر بلون تحذيري في التقرير.</div></div>
+  <div class="card"><h2>الملاحظات والإجراءات التصحيحية <span class="bc">${r.observations.length}</span></h2><div class="tw"><table class="t"><thead><tr><th>القسم</th><th>الملاحظة</th><th>الخطورة</th><th>الإجراء</th><th>المسئول</th><th>المهلة</th><th></th></tr></thead><tbody>${rowsTbl('observations',r.observations,OBS_COLS,'لا توجد ملاحظات')}</tbody></table></div><button class="btn b3 sm" style="margin-top:9px" data-a="addrow" data-path="observations">+ إضافة ملاحظة</button></div>
+  <div class="card"><h2>الأعطال الفنية <span class="bc">${r.faults.length}</span></h2><div class="tw"><table class="t"><thead><tr><th>الجهاز</th><th>القسم</th><th>وصف العطل</th><th>الإجراء</th><th></th></tr></thead><tbody>${rowsTbl('faults',r.faults,FLT_COLS,'لا توجد أعطال')}</tbody></table></div><button class="btn b3 sm" style="margin-top:9px" data-a="addrow" data-path="faults">+ إضافة عطل</button></div>
+  <div class="card"><h2>النواقص</h2><div class="g2"><div class="f"><label>الأدوية (سطر لكل صنف)</label><textarea data-p="shortages.medicines">${E(r.shortages.medicines)}</textarea></div><div class="f"><label>المستلزمات</label><textarea data-p="shortages.supplies">${E(r.shortages.supplies)}</textarea></div></div></div>
+  <div class="card"><h2>ملخص النتائج والقرار التنفيذي</h2>
+   <div class="hint" style="margin:0 0 8px">🔴 حرجة: ${c.critical} &nbsp; 🟠 متوسطة: ${c.medium} &nbsp; 🟢 بسيطة: ${c.minor}</div>
+   <div class="g2"><div class="f"><label>درجة الالتزام /100 (مقترحة: ${ss})</label><input type="number" min="0" max="100" data-p="scoreOverride" value="${fs}"><div class="bar"><i id="sbar" style="width:${fs}%"></i></div></div>
+   <div class="f"><label>القرار التنفيذي (مقترح: ${sd})</label>${DECS.map(d=>`<label class="ck" style="cursor:pointer"><input type="radio" name="dec" data-p="decision" value="${d}" ${(r.decision?r.decision===d:sd===d)?'checked':''}> ${d}</label>`).join('')}</div></div>
+   <div class="g2"><div class="f"><label>موعد إعادة المرور</label><input type="date" data-p="followUpDate" value="${r.followUpDate}"></div><div class="f"><label>اسم وتوقيع القائم بالمرور</label><input type="text" data-p="signatureName" value="${E(r.signatureName)}"></div></div></div>`;
+}
+function fuBox(){
+  const r=S.cur;if(r.visitType!=='متابعة'||!r.hospital)return'';
+  const p=S.index.filter(x=>x.hospital===r.hospital&&x.id!==r.id).sort((a,b)=>(b.visitDate||'').localeCompare(a.visitDate||''));
+  if(!p.length)return`<div class="hint">لا توجد زيارة سابقة لهذا المستشفى.</div>`;
+  return`<div class="hint">📌 زيارة سابقة بتاريخ ${p[0].visitDate} (درجة ${p[0].score}) <button class="btn b2 sm" data-a="import" data-id="${p[0].id}">استيراد الملاحظات الحرجة/المتوسطة</button></div>`;
+}
+
+/* ================= REPORT MARKUP (same for preview, PDF, Word) ================= */
+const RCSS=`.rp{font-family:Tahoma,Arial,sans-serif;color:#20302F;font-size:13px;line-height:1.7;background:#fff;direction:rtl;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.rp table{width:100%;border-collapse:collapse;margin:6px 0 12px}
+ .rp th{background:var(--paper);color:var(--navy);border:1px solid #cfc9b8;padding:5px;text-align:right}
+.rp td{border:1px solid #cfc9b8;padding:5px;text-align:right;vertical-align:top}
+ .rp .hd td{background:var(--navy);color:var(--gl);border:none;padding:6px 18px}
+.rp .hd .t{color:#fff;font-size:15px;font-weight:bold;padding:10px 18px 14px}
+ .rp h3{color:var(--navy);font-size:14px;border-right:4px solid #B9863E;padding-right:8px;margin:16px 0 6px;page-break-after:avoid;break-after:avoid}
+.rp tr{page-break-inside:avoid;break-inside:avoid}
+.rp .m td b{display:block;color:#6E7A76;font-size:10px;font-weight:normal}
+.rp .y{color:#3E8C5C;font-weight:bold}.rp .n{color:#C9382C;font-weight:bold}.rp .o{color:#D6842A;font-weight:bold}
+ .rp .bar{height:9px;background:var(--paper);border-radius:9px;overflow:hidden}.rp .bar i{display:block;height:9px;background:#3E8C5C}
+.rp img{width:100%;height:170px;object-fit:cover}
+.rp .mut{color:#6E7A76}.rp .ft{text-align:center;color:#6E7A76;font-size:10px;margin-top:20px}
+.rp .bx{padding:0 18px 18px}.rp p.lb{margin:10px 0 4px;page-break-after:avoid;break-after:avoid}`;
+
+const PL={er:'الطوارئ',icu:'العناية المركزة',or:'العمليات'};
+function repSec(k,r){
+  const items=SEC[k][1],label=PL[k],s=r.sections[k];
+  if(!s.included)return`<p><b>${label}:</b> <span class="mut">غير مُدرَج (لا ينطبق على هذا المستشفى)</span></p>`;
+  let x='';
+  if(k==='icu'){const t=Number(s.occupancy.total)||0,o=Number(s.occupancy.occupied)||0;x=`<p>إشغال العناية: <b>${o}</b> من <b>${t}</b> سرير (${t>0?Math.round(o/t*100):0}%)</p>`}
+  if(k==='or'){
+    x=`<p class="lb"><b>العمليات المجراة:</b></p>`+(s.operations.length?`<table><tr><th>نوع العملية</th><th>الجراح</th><th>الحالة</th></tr>${s.operations.map(o=>`<tr><td>${E(o.type)}</td><td>${E(o.doctor)}</td><td>${E(o.status)}</td></tr>`).join('')}</table>`:`<p class="mut">لا توجد عمليات مسجّلة</p>`)
+    +`<p class="lb"><b>العمليات المؤجلة:</b></p>`+(s.postponed.length?`<table><tr><th>نوع العملية</th><th>سبب التأجيل</th></tr>${s.postponed.map(o=>`<tr><td>${E(o.type)}</td><td>${E(o.reason)}</td></tr>`).join('')}</table>`:`<p class="mut">لا توجد عمليات مؤجلة</p>`);
+  }
+  return`<p class="lb"><b>${label}</b></p><table>${items.map((it,i)=>`<tr><td>${it}</td><td width="70" style="text-align:center"><span class="${s.checks[i]?'y':'n'}">${s.checks[i]?'نعم':'لا'}</span></td></tr>`).join('')}</table>${x}${s.notes?`<p class="mut"><b>ملاحظات:</b> ${br(s.notes)}</p>`:''}`;
+}
+function repBody(r){
+  const st=S.set,c=cnt(r),fs=finScore(r),dec=r.decision||sugDec(fs);
+  const col=decCls(dec)==='g'?'#3E8C5C':decCls(dec)==='o'?'#D6842A':'#C9382C';
+  return`<div class="rp"><table class="hd" style="margin:0"><tr><td>${E(st.line1)}</td></tr><tr><td>${E(st.line2)}</td></tr><tr><td>${E(st.line3)}</td></tr><tr><td class="t">${E(st.title)}</td></tr></table><div class="bx">
+  <h3>أولاً: بيانات المرور</h3>
+  <table class="m"><tr><td><b>المستشفى</b>${E(r.hospital)||'—'}</td><td><b>تاريخ المرور</b>${r.visitDate||'—'}</td><td><b>وقت المرور</b>${r.visitTime||'—'}</td></tr><tr><td><b>نوع المرور</b>${r.visitType||'—'}</td><td><b>القائم بالمرور</b>${E(r.inspectorName)||'—'}</td><td><b>الحضور من المستشفى</b>${E(r.attendees)||'—'}</td></tr></table>
+  <h3>ثانياً: التقييم السريع</h3>${['er','icu','or'].map(k=>repSec(k,r)).join('')}
+  <h3>الملاحظات والإجراءات التصحيحية</h3>
+  <table><tr><th>م</th><th>القسم</th><th>الملاحظة</th><th>الخطورة</th><th>الإجراء المطلوب</th><th>المسئول</th><th>المهلة</th></tr>${r.observations.length?r.observations.map((o,i)=>`<tr><td>${i+1}</td><td>${E(o.section)}</td><td>${E(o.note)}</td><td><span class="${o.severity==='critical'?'n':o.severity==='medium'?'o':'y'}">${SEVL[o.severity]||''}</span></td><td>${E(o.action)}</td><td>${E(o.responsible)}</td><td>${E(o.deadline)}</td></tr>`).join(''):`<tr><td colspan="7" style="text-align:center" class="mut">لا توجد ملاحظات</td></tr>`}</table>
+  <h3>الأعطال الفنية</h3>
+  <table><tr><th>الجهاز</th><th>القسم</th><th>وصف العطل</th><th>الإجراء</th></tr>${r.faults.length?r.faults.map(f=>`<tr><td>${E(f.device)}</td><td>${E(f.dept)}</td><td>${E(f.desc)}</td><td>${E(f.action)}</td></tr>`).join(''):`<tr><td colspan="4" style="text-align:center" class="mut">لا توجد أعطال</td></tr>`}</table>
+  <h3>أرصدة أمصال الاستقبال</h3>
+  <table><tr><th>الصنف</th><th>الرصيد</th><th>الحالة</th></tr>${SERA.map(([k,l])=>{const v=r.receptionSera[k],ok=v!==''&&Number(v)>0;return`<tr><td>${l}</td><td>${v!==''?E(v):'—'}</td><td><span class="${ok?'y':'n'}">${ok?'متوفر':'نفذ / غير متوفر'}</span></td></tr>`}).join('')}</table>
+  <h3>النواقص</h3>
+  <table><tr><th width="50%">الأدوية</th><th>المستلزمات</th></tr><tr><td>${br(r.shortages.medicines)||'—'}</td><td>${br(r.shortages.supplies)||'—'}</td></tr></table>
+  <h3>ملخص نتائج المرور</h3>
+  <p><span class="n">ملاحظات حرجة: ${c.critical}</span> &nbsp;&nbsp; <span class="o">متوسطة: ${c.medium}</span> &nbsp;&nbsp; <span class="y">بسيطة: ${c.minor}</span></p>
+  <p><b>درجة الالتزام: ${fs}/100</b></p><div class="bar"><i style="width:${fs}%;background:${col}"></i></div>
+  <h3>القرار التنفيذي</h3>
+  <p>خلصت لجنة المرور إلى أن مستوى جاهزية أقسام الرعاية الحرجة والعاجلة بالمستشفى: <b style="color:${col}">${dec}</b></p>
+  <p>وقد تم التنبيه على إدارة المستشفى بسرعة تنفيذ الإجراءات التصحيحية الموضحة أعلاه خلال المدد المحددة، ويوصى بإعادة المرور للتأكد من إزالة السلبيات.</p>
+  <p>موعد إعادة المرور: <b>${r.followUpDate||'—'}</b></p>
+  ${r.attachments.length?`<h3>المرفقات</h3><table>${r.attachments.reduce((a,x,i)=>{if(i%2===0)a.push([]);a[a.length-1].push(x);return a},[]).map(p=>`<tr>${p.map(a=>`<td width="50%"><img src="${a.dataUrl}"><br><span class="mut">${E(a.name)}</span></td>`).join('')}${p.length<2?'<td></td>':''}</tr>`).join('')}</table>`:''}
+  <h3>التوقيعات</h3><p><b>القائم بالمرور:</b> ${E(r.signatureName||r.inspectorName)||'—'}<br>التوقيع: ..................................</p>
+  <div class="ft">تصميم وتطوير النظام: مجدى محمد سعد</div></div></div>`;
+}
+function fullDoc(r,word){
+  const tt=THEMES[S.set.theme]||THEMES.classic;
+  const themeCss=`:root{--navy:${tt.dark};--nd:${tt.deep};--paper:${tt.light};--line:${tt.line};--ink:${tt.ink};--mut:${tt.mut};--gold:${tt.main};--gl:${tt.light}}`;
+  return`<!DOCTYPE html><html dir="rtl" lang="ar" ${word?`xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"`:''}><head><meta charset="utf-8"><meta name="viewport" content="width=794"><title>تقرير مرور - ${E(r.hospital)}</title><style>@page{size:A4;margin:10mm}html,body{margin:0;padding:0;background:#fff}${themeCss}${RCSS}</style></head><body>${repBody(r)}</body></html>`;
+}
+
+/* ================= PREVIEW / EXPORT ================= */
+function vPrev(m){
+  if(!S.cur)S.cur=newReport();
+  m.innerHTML=`<div class="ph"><div><h1>📋 تنسيق التقرير</h1><div class="d">المعاينة متجاوبة للموبايل — التصدير يظل A4</div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn b3" data-a="share">📤 مشاركة</button><button class="btn b3" data-a="word">📄 Word</button><button class="btn b3" data-a="ppt">📊 PowerPoint</button><button class="btn b2" data-a="pdf">🖨️ PDF</button></div></div><style>${RCSS}</style><div class="pvw" id="pvw">${repBody(S.cur)}</div>`;
+  fit();
+}
+function fit(){
+  const w=document.getElementById('pvw');if(!w)return;
+  const rp=w.querySelector('.rp');if(!rp)return;
+  const mobile=window.matchMedia('(max-width:800px)').matches;
+  if(mobile){
+    rp.style.transform='none';
+    w.style.height='auto';
+    w.style.minHeight='0';
+    return;
+  }
+  const sc=Math.min(1,(w.clientWidth-2)/794);
+  rp.style.transform=`scale(${sc})`;
+  w.style.height=(rp.offsetHeight*sc+2)+'px';
+}
+window.addEventListener('resize',()=>{if(S.view==='preview')fit()});
+function reportFileName(r){return 'تقرير_'+((r&&r.hospital)||'مستشفى').replace(/\s+/g,'_')}
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error('load fail'));document.head.appendChild(s)})}
+async function loadPdfLibs(){
+  const jobs=[];
+  if(!window.html2canvas)jobs.push(loadScript('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js'));
+  if(!window.jspdf)jobs.push(loadScript('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js'));
+  await Promise.all(jobs);
+}
+function openPrintWindow(r){
+  const name=reportFileName(r)+'.html';
+  const blob=new Blob([fullDoc(r)],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const w=window.open(url,'_blank');
+  if(!w){dl(name,blob);toast('تم التنزيل — افتح الملف ومن قائمة المتصفح اختر "طباعة" ثم "حفظ كـ PDF"');return}
+  toast('🖨️ من نافذة الطباعة اختر "حفظ كـ PDF"');
+  setTimeout(()=>{try{w.focus();w.print()}catch(e){}},700);
+}
+/* Real PDF: rasterize the report at A4 width, slice into pages, build a true .pdf file.
+   Falls back to the print window when offline or when libraries can't load. */
+async function exportPdfReal(){
+  const r=S.cur;if(!r)return;
+  toast('⏳ جاري إنشاء ملف PDF...');
+  try{
+    await loadPdfLibs();
+    const tt=THEMES[S.set.theme]||THEMES.classic;
+    const flat=RCSS.replace(/var\(--navy\)/g,tt.dark).replace(/var\(--nd\)/g,tt.deep)
+      .replace(/var\(--paper\)/g,tt.light).replace(/var\(--line\)/g,tt.line)
+      .replace(/var\(--ink\)/g,tt.ink).replace(/var\(--mut\)/g,tt.mut)
+      .replace(/var\(--gold\)/g,tt.main).replace(/var\(--gl\)/g,tt.light);
+    const host=document.createElement('div');
+    host.setAttribute('dir','rtl');
+    host.style.cssText='position:absolute;left:-9999px;top:0;width:794px;background:#fff;';
+    host.innerHTML=`<style>${flat}${RCSS.includes('.rp')?'':''}</style>`+repBody(r);
+    host.querySelector('style').textContent=flat;
+    document.body.appendChild(host);
+    try{
+      await document.fonts.ready;
+      await new Promise(res=>setTimeout(res,120));
+      const el=host.querySelector('.rp');
+      const canvas=await window.html2canvas(el,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false,width:794,windowWidth:794});
+      const {jsPDF}=window.jspdf;
+      const pdf=new jsPDF({unit:'pt',format:'a4'});
+      const pw=595.28,ph=841.89,margin=24;
+      const imgW=pw-margin*2;
+      const pxPerPage=canvas.width*(ph-margin*2)/imgW;
+      let y=0;
+      while(y<canvas.height){
+        const sliceH=Math.min(pxPerPage,canvas.height-y);
+        const pc=document.createElement('canvas');
+        pc.width=canvas.width;pc.height=Math.ceil(sliceH);
+        const ctx=pc.getContext('2d');
+        ctx.fillStyle='#fff';ctx.fillRect(0,0,pc.width,pc.height);
+        ctx.drawImage(canvas,0,y,canvas.width,sliceH,0,0,canvas.width,sliceH);
+        const img=pc.toDataURL('image/jpeg',0.92);
+        const imgH=imgW*sliceH/canvas.width;
+        if(y>0)pdf.addPage();
+        pdf.addImage(img,'JPEG',margin,margin,imgW,imgH);
+        y+=sliceH;
+      }
+      const fname=reportFileName(r)+'.pdf';
+      try{
+        const file=new File([pdf.output('blob')],fname,{type:'application/pdf'});
+        if(navigator.canShare&&navigator.canShare({files:[file]})){
+          await navigator.share({files:[file],title:'تقرير مرور'});
+          toast('✅ تم إنشاء ومشاركة الـ PDF');
+          return;
+        }
+      }catch(e){if(e&&e.name==='AbortError'){toast('تم إلغاء المشاركة');return}}
+      pdf.save(fname);
+      toast('✅ تم تصدير ملف PDF');
+    }finally{host.remove()}
+  }catch(err){
+    console.error(err);
+    openPrintWindow(r);
+  }
+}
+async function shareReport(){
+  const r=S.cur;if(!r)return;
+  const name=reportFileName(r)+'.html';
+  const blob=new Blob([fullDoc(r)],{type:'text/html;charset=utf-8'});
+  const file=new File([blob],name,{type:'text/html'});
+  try{
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      await navigator.share({files:[file],title:'تقرير مرور',text:'تقرير مرور - '+((r.hospital)||'')});
+      return;
+    }
+  }catch(e){if(e&&e.name==='AbortError')return}
+  dl(name,blob);toast('المشاركة غير متاحة هنا — تم تنزيل التقرير');
+}
+function printPDF(){
+  const r=S.cur;if(!r)return;
+  const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||window.matchMedia('(max-width:800px)').matches;
+  if(isMobile){exportPdfReal();return}
+  const oldT=document.title;document.title='تقرير مرور - '+(r.hospital||'')+' - '+(r.visitDate||'');
+  const f=document.createElement('iframe');
+  f.style.cssText='position:fixed;right:0;bottom:0;width:794px;height:1px;border:0;opacity:0;pointer-events:none';
+  document.body.appendChild(f);
+  const d=f.contentWindow.document;d.open();d.write(fullDoc(r));d.close();
+  let done=false;
+  setTimeout(()=>{try{f.contentWindow.focus();f.contentWindow.print();done=true}catch(e){}},900);
+  setTimeout(()=>{if(!done)exportPdfReal()},1800);
+  setTimeout(()=>{try{f.remove()}catch(e){};document.title=oldT},90000);
+}
+function dl(name,blob){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),8000)}
+function exportWord(){
+  const r=S.cur;
+  dl(`تقرير_${(r.hospital||'مستشفى').replace(/\s+/g,'_')}.doc`,new Blob(['\ufeff',fullDoc(r,true)],{type:'application/msword'}));
+  toast('✅ تم تصدير ملف الوورد');
+}
+
+/* ================= POWERPOINT EXPORT ================= */
+function loadPptxGenJS(){
+  return new Promise((resolve,reject)=>{
+    if(window.PptxGenJS){resolve(window.PptxGenJS);return}
+    const sc=document.createElement('script');
+    sc.src='https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js';
+    sc.onload=()=>window.PptxGenJS?resolve(window.PptxGenJS):reject(new Error('PptxGenJS unavailable'));
+    sc.onerror=()=>reject(new Error('offline'));
+    document.head.appendChild(sc);
+  });
+}
+function pptSafe(s){return String(s??'').replace(/<[^>]*>/g,'').replace(/&nbsp;/g,' ').trim()||'—'}
+function pptRows(arr,keys){return arr.map(o=>keys.map(k=>pptSafe(o[k])));}
+function pptTable(slide,rows,cols,y,h=2.4){
+  const PptxGenJS=window.PptxGenJS;
+  const data=[cols,...rows];
+  slide.addTable(data,{x:.45,y,w:12.45,h,border:{type:'solid',color:'D7DDE1',pt:1},fill:'FFFFFF',color:'20302F',fontFace:'Arial',fontSize:10,margin:.06,rtlMode:true,autoFit:false});
+}
+async function exportPowerPoint(){
+  const r=S.cur;if(!r)return;
+  /* The application itself is fully offline. A true PPTX needs the optional
+     PptxGenJS library; when offline we skip the CDN attempt and export the
+     built-in PowerPoint-compatible .ppt immediately. */
+  if(!navigator.onLine && !window.PptxGenJS){
+    exportPowerPointFallback();
+    toast('✅ تم تصدير PowerPoint بصيغة .ppt — يعمل أوف لاين');
+    return;
+  }
+  try{
+    await loadPptxGenJS();
+    const pptx=new window.PptxGenJS();
+    pptx.layout='LAYOUT_WIDE';pptx.author='مجدى محمد سعد';pptx.subject='تقرير مرور الرعاية الحرجة والعاجلة';pptx.title='تقرير مرور - '+(r.hospital||'مستشفى');
+    pptx.lang='ar-EG';pptx.theme={headFontFace:'Arial',bodyFontFace:'Arial',lang:'ar-EG'};
+    const t=THEMES[S.set.theme]||THEMES.classic, dark=t.dark.replace('#',''), main=t.main.replace('#',''), light=t.light.replace('#','');
+    const titleColor='FFFFFF';
+    const addHeader=(slide,title)=>{
+      slide.background={color:'FFFFFF'};
+      slide.addShape(pptx.ShapeType.rect,{x:0,y:0,w:13.33,h:.72,fill:{color:dark},line:{color:dark}});
+      slide.addText(title,{x:.45,y:.16,w:12.35,h:.32,fontFace:'Arial',fontSize:20,bold:true,color:titleColor,rtlMode:true,align:'right',margin:0});
+      slide.addText('إدارة الرعاية الحرجة والعاجلة — مديرية الشئون الصحية بالدقهلية',{x:.45,y:7.05,w:12.35,h:.22,fontFace:'Arial',fontSize:8,color:'6E7A76',rtlMode:true,align:'center',margin:0});
+    };
+    let slide=pptx.addSlide();addHeader(slide,'تقرير المرور الميداني');
+    slide.addText(pptSafe(r.hospital),{x:.55,y:1.25,w:12.1,h:.55,fontSize:27,bold:true,color:dark,rtlMode:true,align:'right'});
+    slide.addText(`${r.visitDate||'—'}   |   ${r.visitTime||'—'}   |   ${r.visitType||'—'}`,{x:.55,y:1.95,w:12.1,h:.35,fontSize:15,color:'5D6D7E',rtlMode:true,align:'right'});
+    slide.addShape(pptx.ShapeType.roundRect,{x:.55,y:2.55,w:3.2,h:1.35,rectRadius:.08,fill:{color:light},line:{color:light}});
+    slide.addText(String(finScore(r))+'/100',{x:.7,y:2.75,w:2.9,h:.55,fontSize:30,bold:true,color:main,align:'center',margin:0});
+    slide.addText('درجة الالتزام',{x:.7,y:3.32,w:2.9,h:.25,fontSize:11,color:'6E7A76',align:'center',rtlMode:true,margin:0});
+    slide.addText(`القرار التنفيذي: ${pptSafe(r.decision||sugDec(finScore(r)))}`,{x:4.1,y:2.72,w:8.0,h:.42,fontSize:20,bold:true,color:dark,rtlMode:true,align:'right',margin:0});
+    slide.addText(`القائم بالمرور: ${pptSafe(r.inspectorName)}\nالحضور من المستشفى: ${pptSafe(r.attendees)}`,{x:4.1,y:3.25,w:8.0,h:.8,fontSize:13,color:'20302F',rtlMode:true,align:'right',breakLine:false,margin:0.03});
+
+    slide=pptx.addSlide();addHeader(slide,'التقييم السريع بالأقسام');
+    const sections=[['الطوارئ','er'],['العناية المركزة','icu'],['العمليات','or']];
+    let yy=1.05;
+    for(const [label,k] of sections){
+      const sec=S.cur.sections[k];if(!sec.included)continue;
+      slide.addText(label,{x:.55,y:yy,w:12.1,h:.32,fontSize:17,bold:true,color:dark,rtlMode:true,align:'right',margin:0});
+      const items=SEC[k][1].map((it,i)=>[it,sec.checks[i]?'نعم':'لا']);
+      pptTable(slide,items,['البند','الحالة'],yy+.38,Math.min(1.8,Math.max(1.15,items.length*.36+.35)));
+      yy+=Math.min(2.55,items.length*.42+1.0);
+      if(k==='icu'){const o=Number(sec.occupancy.occupied)||0,total=Number(sec.occupancy.total)||0;slide.addText(`الإشغال: ${o} من ${total} (${total?Math.round(o/total*100):0}%)`,{x:.55,y:yy-.18,w:12.1,h:.25,fontSize:10,color:'6E7A76',rtlMode:true,align:'right',margin:0})}
+    }
+
+    slide=pptx.addSlide();addHeader(slide,'الملاحظات والإجراءات التصحيحية');
+    const obs=pptRows(r.observations,['section','note','severity','action','responsible','deadline']);
+    if(obs.length)pptTable(slide,obs,['القسم','الملاحظة','الخطورة','الإجراء','المسئول','المهلة'],1.05,5.55);
+    else slide.addText('لا توجد ملاحظات مسجلة',{x:.6,y:2.5,w:12,h:.5,fontSize:20,color:'6E7A76',align:'center',rtlMode:true});
+
+    slide=pptx.addSlide();addHeader(slide,'الأعطال والنواقص والأمصال');
+    const faults=pptRows(r.faults,['device','dept','desc','action']);
+    slide.addText('الأعطال الفنية',{x:.55,y:1.0,w:12.1,h:.3,fontSize:16,bold:true,color:dark,rtlMode:true,align:'right',margin:0});
+    if(faults.length)pptTable(slide,faults,['الجهاز','القسم','وصف العطل','الإجراء'],1.35,2.15);
+    slide.addText('أرصدة أمصال الاستقبال',{x:.55,y:3.75,w:12.1,h:.3,fontSize:16,bold:true,color:dark,rtlMode:true,align:'right',margin:0});
+    const sera=SERA.map(([k,l])=>[l,r.receptionSera[k]!==''?String(r.receptionSera[k]):'—',(r.receptionSera[k]!==''&&Number(r.receptionSera[k])>0)?'متوفر':'نفذ / غير متوفر']);
+    pptTable(slide,sera,['الصنف','الرصيد','الحالة'],4.08,1.65);
+
+    slide=pptx.addSlide();addHeader(slide,'النواقص وملخص النتائج');
+    slide.addText('الأدوية',{x:.55,y:1.0,w:5.9,h:.3,fontSize:16,bold:true,color:dark,rtlMode:true,align:'right',margin:0});
+    slide.addText(pptSafe(r.shortages.medicines),{x:.55,y:1.38,w:5.9,h:1.7,fontSize:13,color:'20302F',rtlMode:true,align:'right',valign:'top',breakLine:false,margin:.08,fit:'shrink'});
+    slide.addText('المستلزمات',{x:6.85,y:1.0,w:5.9,h:.3,fontSize:16,bold:true,color:dark,rtlMode:true,align:'right',margin:0});
+    slide.addText(pptSafe(r.shortages.supplies),{x:6.85,y:1.38,w:5.9,h:1.7,fontSize:13,color:'20302F',rtlMode:true,align:'right',valign:'top',breakLine:false,margin:.08,fit:'shrink'});
+    const c=cnt(r);
+    slide.addText(`حرجة: ${c.critical}   |   متوسطة: ${c.medium}   |   بسيطة: ${c.minor}`,{x:.55,y:3.65,w:12.1,h:.4,fontSize:17,bold:true,color:dark,rtlMode:true,align:'center',margin:0});
+    slide.addText(`درجة الالتزام: ${finScore(r)}/100\nالقرار: ${pptSafe(r.decision||sugDec(finScore(r)))}\nإعادة المرور: ${r.followUpDate||'—'}`,{x:.55,y:4.35,w:12.1,h:1.15,fontSize:17,bold:true,color:main,rtlMode:true,align:'center',margin:.04});
+
+    if(r.attachments.length){
+      let slideNo=0;
+      for(let i=0;i<r.attachments.length;i+=2){
+        slide=pptx.addSlide();addHeader(slide,`المرفقات ${i+1}–${Math.min(i+2,r.attachments.length)}`);
+        const pair=r.attachments.slice(i,i+2);
+        pair.forEach((a,j)=>{
+          const x=j===0?.55:6.85;
+          slide.addImage({data:a.dataUrl,x,y:1.15,w:5.9,h:4.95,sizingContain:true});
+          slide.addText(pptSafe(a.name),{x,y:6.25,w:5.9,h:.35,fontSize:10,color:'6E7A76',rtlMode:true,align:'center',margin:0});
+        });
+        slideNo++;
+      }
+    }
+    await pptx.writeFile({fileName:`تقرير_${(r.hospital||'مستشفى').replace(/\s+/g,'_')}.pptx`});
+    toast('✅ تم تصدير PowerPoint (.pptx)');
+  }catch(err){
+    console.error(err);
+    exportPowerPointFallback();
+  }
+}
+function exportPowerPointFallback(){
+  const r=S.cur;
+  const html=fullDoc(r,true).replace('</body>','<p style="text-align:center;font:14px Arial;color:#666">ملف PowerPoint متوافق — تم إنشاؤه بدون اتصال بالإنترنت. يمكن فتحه في Microsoft PowerPoint وحفظه كـ PPTX عند الحاجة.</p></body>');
+  dl(`تقرير_${(r.hospital||'مستشفى').replace(/\s+/g,'_')}.ppt`,new Blob(['\ufeff',html],{type:'application/vnd.ms-powerpoint'}));
+  toast('ℹ️ تم التصدير بصيغة PowerPoint متوافقة — الإنترنت مطلوب لـ PPTX الحقيقي');
+}
+
+/* ================= ATTACHMENTS ================= */
+function vAtt(m){
+  if(!S.cur)S.cur=newReport();const r=S.cur;
+  m.innerHTML=`<div class="ph"><div><h1>📎 المرفقات</h1><div class="d">${E(r.hospital)||'(لم يُحدَّد المستشفى بعد)'}</div></div></div>
+  <div class="card">
+   <div class="dz" id="dropzone" data-a="pick">
+    <div style="font-size:28px">📷</div><b>اضغط لاختيار أكثر من صورة</b>
+    <div class="hint">يمكن اختيار عدة صور مرة واحدة أو سحب الصور وإفلاتها هنا — تُضغط تلقائياً لتقليل حجم التقرير.</div>
+    <input type="file" id="fi" accept="image/*" multiple style="display:none">
+   </div>
+   <div class="att-toolbar" style="margin-top:10px">
+    <button class="btn b1 sm" data-a="pick">📷 إضافة صور</button>
+    <span class="hint">الحد العملي يعتمد على مساحة تخزين المتصفح.</span>
+   </div>
+   <div class="hint">📌 بعد الإضافة ارجع لـ"تقرير جديد" واضغط 💾 لحفظ المرفقات. جميع الصور ستظهر في المعاينة وPDF وPowerPoint.</div>
+  </div>
+  <div class="card"><h2>المرفقات الحالية <span class="bc">${r.attachments.length}</span></h2>
+   <div class="ag">${r.attachments.length?r.attachments.map((a,i)=>`<div class="ai"><img src="${a.dataUrl}" loading="lazy"><div><span title="${E(a.name)}">#${i+1} ${E(a.name)}</span><button class="btn b4 sm" data-a="delatt" data-id="${a.id}">✕</button></div></div>`).join(''):'<div class="empty" style="grid-column:1/-1">لا توجد مرفقات</div>'}</div>
+  </div>`;
+  const input=m.querySelector('#fi'),dz=m.querySelector('#dropzone');
+  const addFiles=async files=>{
+    const arr=[...files].filter(f=>f.type.startsWith('image/'));
+    if(!arr.length){toast('اختر صوراً فقط');return}
+    let added=0;
+    for(const file of arr){
+      try{
+        const dataUrl=await compressImageFile(file);
+        r.attachments.push({id:'a_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),name:file.name,dataUrl});
+        added++;
+      }catch(err){console.error(err)}
+    }
+    vAtt(m);toast('✅ تمت إضافة '+added+' صورة');
+  };
+  input.onchange=e=>{addFiles(e.target.files);input.value=''};
+  ['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag')}));
+  ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag')}));
+  dz.addEventListener('drop',e=>addFiles(e.dataTransfer.files));
+}
+function compressImageFile(file){
+  return new Promise((resolve,reject)=>{
+    const rd=new FileReader();
+    rd.onerror=reject;
+    rd.onload=ev=>{
+      const im=new Image();
+      im.onerror=reject;
+      im.onload=()=>{
+        const max=1100,k=Math.min(1,max/Math.max(im.width,im.height));
+        const c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*k));c.height=Math.max(1,Math.round(im.height*k));
+        const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(im,0,0,c.width,c.height);
+        resolve(c.toDataURL('image/jpeg',.72));
+      };
+      im.src=ev.target.result;
+    };
+    rd.readAsDataURL(file);
+  });
+}
+
+/* ================= SETTINGS ================= */
+function vSet(m){
+  const s=S.set;
+  m.innerHTML=`<div class="ph"><div><h1>⚙️ الإعدادات</h1></div></div>
+  <div class="card"><h2>🎨 ألوان الواجهة والتقرير</h2>
+   <div class="hint" style="margin-bottom:10px">تمت إضافة لوحات الألوان الجديدة مع الحفاظ على الألوان الأصلية. الاختيار يُحفظ تلقائياً ويؤثر على الواجهة والمعاينة والتقرير.</div>
+   <div class="theme-grid">${Object.entries(THEMES).map(([k,t])=>`<div class="theme-card ${s.theme===k?'on':''}" data-a="theme" data-theme="${k}">
+     <div class="theme-name">${t.name}${s.theme===k?' ✓':''}</div><div class="swatches"><span class="sw" style="background:${t.light}"></span><span class="sw" style="background:${t.main}"></span><span class="sw" style="background:${t.dark}"></span></div>
+     <div class="hint">${t.light} · ${t.main} · ${t.dark}</div>
+   </div>`).join('')}</div>
+  </div>
+  <div class="card"><h2>ترويسة التقارير</h2>
+   ${[['line1','السطر الأول'],['line2','السطر الثاني'],['line3','السطر الثالث'],['title','عنوان النموذج'],['inspectorName','اسم القائم بالمرور الافتراضي']].map(([k,l])=>`<div class="f"><label>${l}</label><input type="text" id="s_${k}" value="${E(s[k])}"></div>`).join('')}
+   <button class="btn b1" data-a="saveset">💾 حفظ</button></div>
+  <div class="card"><h2>🏥 قائمة المستشفيات <span class="bc">${S.hospitals.length}</span></h2>
+   <div style="display:flex;gap:8px;margin-bottom:12px"><input type="text" id="nh" placeholder="اسم مستشفى جديد"><button class="btn b2" data-a="addh" style="white-space:nowrap">+ إضافة</button></div>
+   ${S.hospitals.map((h,i)=>`<div class="hl"><span>${E(h)}</span><button class="btn b3 sm" data-a="edith" data-i="${i}">✎</button><button class="btn b4 sm" data-a="delh" data-i="${i}">✕</button></div>`).join('')}
+   <button class="btn b3 sm" data-a="reseth" style="margin-top:8px">استعادة القائمة الأصلية</button></div>
+  <div class="card"><h2>📴 التشغيل أوف لاين</h2><div class="hint">النظام يعمل من ملف HTML واحد بدون إنترنت: البيانات والمرفقات والتقارير محفوظة محلياً في المتصفح. الخط الخارجي وPowerPoint لا يمنعان تشغيل النظام؛ وعند عدم وجود إنترنت يتم استخدام تصدير PowerPoint المتوافق بصيغة .ppt.</div></div>
+  <div class="card"><h2>💾 نسخة احتياطية</h2><div class="hint" style="margin:0 0 10px">بيانات المتصفح ممكن تضيع لو اتمسحت. خد نسخة بشكل دوري.</div>
+   <button class="btn b1" data-a="backup">⬇ تصدير JSON</button> <button class="btn b3" data-a="restore">⬆ استيراد JSON<input type="file" id="rf" accept=".json" style="display:none"></button></div>
+  <div class="card"><h2>⚠️ منطقة الخطر</h2><button class="btn b4" data-a="wipe">حذف جميع التقارير</button></div>`;
+  m.querySelector('#rf').onchange=async e=>{
+    const f=e.target.files[0];if(!f)return;
+    try{
+      const d=JSON.parse(await f.text());
+      for(const r of d.reports||[])await sSet('report:'+r.id,r);
+      const map=new Map(S.index.map(x=>[x.id,x]));(d.index||[]).forEach(x=>map.set(x.id,x));
+      S.index=[...map.values()];await sSet('reports-index',S.index);
+      if(d.hospitals&&d.hospitals.length){S.hospitals=[...new Set([...S.hospitals,...d.hospitals])];await sSet('hospitals',S.hospitals)}
+      if(d.settings){S.set=Object.assign({},DEF_SET,d.settings);applyTheme(S.set.theme||'classic');await sSet('app-settings',S.set)}
+      toast('✅ تم الاستيراد');vSet(m);
+    }catch(err){toast('ملف غير صالح')}
+  };
+}
+async function addHosp(name){
+  name=(name||'').trim();if(!name)return false;
+  if(S.hospitals.includes(name)){toast('المستشفى موجودة بالفعل');return name}
+  S.hospitals.push(name);await sSet('hospitals',S.hospitals);return name;
+}
+
+/* ================= SAVE ================= */
+async function saveReport(){
+  const r=S.cur;
+  if(!r.hospital||!r.visitDate){toast('أدخل المستشفى وتاريخ المرور على الأقل');return}
+  const c=cnt(r),fs=finScore(r);
+  if(!r.decision)r.decision=sugDec(fs);
+  if(!await sSet('report:'+r.id,r)){toast('⚠️ فشل الحفظ — غالباً حجم الصور كبير، قلل المرفقات');return}
+  const e={id:r.id,hospital:r.hospital,visitDate:r.visitDate,visitType:r.visitType,score:fs,decision:r.decision,critical:c.critical,medium:c.medium,minor:c.minor};
+  const p=S.index.findIndex(x=>x.id===r.id);if(p>=0)S.index[p]=e;else S.index.push(e);
+  await sSet('reports-index',S.index);toast('✅ تم حفظ التقرير');
+}
+
+/* ================= EVENTS (delegated) ================= */
+const main=document.getElementById('main');
+function onField(e){
+  const t=e.target,p=t.dataset.p;if(!p||S.view!=='form')return;
+  const r=S.cur;
+  if(t.type==='checkbox'){setP(r,p,t.checked);return}
+  if(p==='hospital'&&t.value==='__new'){
+    if(e.type!=='change')return;
+    const n=prompt('اسم المستشفى الجديدة:');
+    addHosp(n).then(v=>{if(v)r.hospital=v;vForm(main)});return;
+  }
+  setP(r,p,t.value);
+  if(p.startsWith('sections.icu.occupancy')){const o=r.sections.icu.occupancy,a=Number(o.total)||0,b=Number(o.occupied)||0;document.getElementById('occp').value=(a>0?Math.round(b/a*100):0)+'%'}
+  if(p==='scoreOverride'){const b=document.getElementById('sbar');if(b)b.style.width=finScore(r)+'%'}
+  if(e.type==='change'&&t.dataset.re)vForm(main);
+}
+main.addEventListener('input',onField);
+main.addEventListener('change',onField);
+
+const ACT={
+  new(){S.cur=newReport();go('form')},
+  async open(b){const r=await sGet('report:'+b.dataset.id);if(r){S.cur=norm(r);go('form')}},
+  async delrep(b){if(!confirm('تأكيد حذف هذا التقرير نهائياً؟'))return;await sDel('report:'+b.dataset.id);S.index=S.index.filter(x=>x.id!==b.dataset.id);await sSet('reports-index',S.index);toast('تم الحذف');render()},
+  blank(){if(!confirm('بدء تقرير فارغ؟ سيتم فقد التعديلات غير المحفوظة.'))return;S.cur=newReport();render()},
+  save:saveReport,
+  addrow(b){getP(S.cur,b.dataset.path).push({...ADD[b.dataset.path]});vForm(main)},
+  delrow(b){getP(S.cur,b.dataset.path).splice(+b.dataset.i,1);vForm(main)},
+  rmsec(b){S.cur.sections[b.dataset.k].included=false;vForm(main)},
+  async import(b){
+    const p=await sGet('report:'+b.dataset.id);if(!p){toast('تعذر تحميل التقرير السابق');return}
+    const cr=(p.observations||[]).filter(o=>o.severity==='critical'||o.severity==='medium');
+    if(!cr.length){toast('لا توجد ملاحظات حرجة أو متوسطة سابقة');return}
+    cr.forEach(o=>S.cur.observations.push({...o}));toast('تم استيراد '+cr.length+' ملاحظة');vForm(main);
+  },
+  pdf:printPDF,word:exportWord,ppt:exportPowerPoint,share:shareReport,
+  pick(){const i=document.getElementById('fi');if(i)i.click()},
+  delatt(b){S.cur.attachments=S.cur.attachments.filter(a=>a.id!==b.dataset.id);vAtt(main)},
+  async theme(b){const k=b.dataset.theme;if(!THEMES[k])return;S.set.theme=k;applyTheme(k);await sSet('app-settings',S.set);vSet(main);toast('🎨 تم تطبيق '+THEMES[k].name)},
+  async saveset(){['line1','line2','line3','title','inspectorName'].forEach(k=>S.set[k]=document.getElementById('s_'+k).value);await sSet('app-settings',S.set);applyTheme(S.set.theme||'classic');toast('✅ تم حفظ الإعدادات')},
+  async addh(){const i=document.getElementById('nh'),v=await addHosp(i.value);if(v){toast('تمت الإضافة');vSet(main)}},
+  async edith(b){const i=+b.dataset.i,n=prompt('تعديل الاسم:',S.hospitals[i]);if(n&&n.trim()){S.hospitals[i]=n.trim();await sSet('hospitals',S.hospitals);vSet(main)}},
+  async delh(b){const i=+b.dataset.i;if(!confirm('حذف "'+S.hospitals[i]+'" من القائمة؟ (التقارير المحفوظة لا تتأثر)'))return;S.hospitals.splice(i,1);await sSet('hospitals',S.hospitals);vSet(main)},
+  async reseth(){if(!confirm('استعادة القائمة الأصلية؟ ستُضاف المستشفيات الناقصة ولن يُحذف شيء.'))return;S.hospitals=[...new Set([...DEFAULT_HOSPITALS,...S.hospitals])];await sSet('hospitals',S.hospitals);vSet(main)},
+  async backup(){
+    const reports=[];for(const x of S.index){const r=await sGet('report:'+x.id);if(r)reports.push(r)}
+    dl('inspection-backup-'+new Date().toISOString().slice(0,10)+'.json',new Blob([JSON.stringify({index:S.index,reports,hospitals:S.hospitals,settings:S.set})],{type:'application/json'}));toast('✅ تم تصدير النسخة الاحتياطية');
+  },
+  restore(b){const i=b.querySelector('input');if(i)i.click()},
+  async wipe(){if(!confirm('تأكيد حذف جميع التقارير نهائياً؟'))return;for(const x of S.index)await sDel('report:'+x.id);S.index=[];await sSet('reports-index',[]);toast('تم الحذف');go('dashboard')}
+};
+main.addEventListener('click',e=>{
+  const b=e.target.closest('[data-a]');if(!b||e.target.tagName==='INPUT')return;
+  const f=ACT[b.dataset.a];if(f)f(b);
+});
+
+init();
+</script>
+</body>
+</html>
